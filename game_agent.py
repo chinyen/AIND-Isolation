@@ -93,12 +93,16 @@ def custom_score2(game, player):
     # Calculate the enclidean distance from current player location to the middle_width
     # of board
     row, col = game.get_player_location(player)
-    middle_col = (game.width-1)//2
-    middle_row = (game.height-1)//2
+    middle_col = (game.width)//2
+    middle_row = (game.height)//2
     euclidean_dist = ((row-middle_row)**2+(col-middle_col)**2)**0.5
 
+    row_opp, col_opp = game.get_player_location(game.get_opponent(player))
+    opp_euclidean_dist = ((row_opp-middle_row)**2+(col_opp-middle_col)**2)**0.5
+
+    dist_opp = ((row_opp-row)**2+(col_opp-col)**2)**0.5
     # Return negative enclidean distance since the further it is the less desirable the move
-    return -euclidean_dist
+    return -euclidean_dist + opp_euclidean_dist +dist_opp
 
 def custom_score3(game, player):
     """
@@ -120,29 +124,22 @@ def custom_score3(game, player):
         The heuristic value of the current game state to the specified player.
 
     """
-    # Determine board size
     board_size = game.width*game.height
-    blank_space = game.get_blank_spaces()
-    alpha = len(blank_space)/board_size
+    empty_size = len(game.get_blank_spaces())
+    empty_ratio = empty_size/board_size
+    
 
-    # If number of open spaces is less than half the board size, use improved_score
-    # evaluation function. Otherwise, use open_move_score
-    own_moves = len(game.get_legal_moves(player))
-    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    if len(blank_space) <= board_size/2:
-        improved_score = float(own_moves-2*opp_moves)
-    else:
-        improved_score = float(2*own_moves - opp_moves)
-
-    # Calculate the enclidean distance from current player location to the middle_width
-    # of board
     row, col = game.get_player_location(player)
-    middle_col = (game.width-1)//2
-    middle_row = (game.height-1)//2
+    middle_col = (game.width)//2
+    middle_row = (game.height)//2
     euclidean_dist = ((row-middle_row)**2+(col-middle_col)**2)**0.5
 
-        # Return negative enclidean distance since the further it is the less desirable the move
-    return improved_score
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+
+    return float(own_moves-3*opp_moves*(1-empty_ratio) - 3*euclidean_dist*empty_ratio)
+
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
