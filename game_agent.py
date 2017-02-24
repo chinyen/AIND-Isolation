@@ -37,9 +37,112 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
 
+    if game.is_winner(player):
+        return float("inf")
+
+    # Return score using heuristic 3
+    return custom_score3(game,player)
+
+def custom_score1(game, player):
+    """
+    Heuristic 1: Aggressive Improved Score Heuristic
+
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+    """
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    return float(own_moves-2*opp_moves)
+
+def custom_score2(game, player):
+    """
+    Heuristic 2: Euclidean Distance to Middle of Board
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+    """
+    # Calculate the enclidean distance from current player location to the middle_width
+    # of board
+    row, col = game.get_player_location(player)
+    middle_col = (game.width-1)//2
+    middle_row = (game.height-1)//2
+    euclidean_dist = ((row-middle_row)**2+(col-middle_col)**2)**0.5
+
+    # Return negative enclidean distance since the further it is the less desirable the move
+    return -euclidean_dist
+
+def custom_score3(game, player):
+    """
+    Heuristic 3: Euclidean Distance to Middle of Board
+
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The heuristic value of the current game state to the specified player.
+
+    """
+    # Determine board size
+    board_size = game.width*game.height
+    blank_space = game.get_blank_spaces()
+    alpha = len(blank_space)/board_size
+
+    # If number of open spaces is less than half the board size, use improved_score
+    # evaluation function. Otherwise, use open_move_score
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    if len(blank_space) <= board_size/2:
+        improved_score = float(own_moves-2*opp_moves)
+    else:
+        improved_score = float(2*own_moves - opp_moves)
+
+    # Calculate the enclidean distance from current player location to the middle_width
+    # of board
+    row, col = game.get_player_location(player)
+    middle_col = (game.width-1)//2
+    middle_row = (game.height-1)//2
+    euclidean_dist = ((row-middle_row)**2+(col-middle_col)**2)**0.5
+
+        # Return negative enclidean distance since the further it is the less desirable the move
+    return improved_score
 
 class CustomPlayer:
     """Game-playing agent that chooses a move using your evaluation function
@@ -120,23 +223,32 @@ class CustomPlayer:
 
         # TODO: finish this function!
 
-        # Perform any required initializations, including selecting an initial
-        # move from the game board (i.e., an opening book), or returning
-        # immediately if there are no legal moves
+        # If there are no legal moves, return immediately
+        if not legal_moves:
+            return(-1, -1)
 
         try:
-            # The search method call (alpha beta or minimax) should happen in
-            # here in order to avoid timeout. The try/except block will
-            # automatically catch the exception raised by the search method
-            # when the timer gets close to expiring
-            pass
+            # Determine which search method to use
+            if self.method == 'minimax':
+                strategy = self.minimax
+            else:
+                strategy = self.alphabeta
+
+            # Determine whether iterative deepening needs to be used.
+            if self.iterative==True:
+                self.search_depth = 1
+                while game.get_legal_moves():
+                    search_score, search_move = strategy(game, self.search_depth)
+                    self.search_depth += 1
+            else:
+                search_score, search_move = strategy(game, self.search_depth)
+
 
         except Timeout:
-            # Handle any actions required at timeout, if necessary
-            pass
+            return search_move
 
         # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        return search_move
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -172,8 +284,37 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+
+        # If end of search depth, return value of current node
+        if depth == 0:
+            return (self.score(game,self), (-1,-1))
+
+        # If it is the maximizing player's turn, find the highest value move assuming that the minimizing player
+        # will pick the minimizing moves
+        if maximizing_player:
+            best_value = float('-inf')
+            best_move = (-1,-1)
+            for move in game.get_legal_moves():
+                (value, new_move) = self.minimax(game.forecast_move(move), depth-1, maximizing_player=False)
+                if value > best_value:
+                    best_value = value
+                    best_move = move
+
+            return best_value, best_move
+        # If it it the minimizing player's turn, find the lowest value move assuming that the maximizing player
+        # will pick the maximizing moves
+        else:
+            best_value = float('inf')
+            best_move = (-1,-1)
+            for move in game.get_legal_moves():
+                (value, new_move) = self.minimax(game.forecast_move(move), depth-1, maximizing_player=True)
+                if value < best_value:
+                    best_value = value
+                    best_move = move
+
+            return best_value, best_move
+
+
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -216,5 +357,50 @@ class CustomPlayer:
         if self.time_left() < self.TIMER_THRESHOLD:
             raise Timeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # If end of search depth, return value of current node
+        if depth == 0:
+            return (self.score(game,self), (-1,-1))
+
+        # If it is the maximizing player's turn, find the highest value move assuming that the minimizing player
+        # will pick the minimizing moves
+        if maximizing_player:
+            best_value = float('-inf')
+            best_move = (-1,-1)
+            for move in game.get_legal_moves():
+                (value, new_move) = self.alphabeta(game.forecast_move(move), depth-1, alpha, beta, maximizing_player=False)
+                if value > best_value:
+                    best_value = value
+                    best_move = move
+
+                # If the value of the node is greater than the maximum score for the miminimizing player,
+                # the tree can be cut
+                if value >= beta:
+                    return best_value, best_move
+
+                # Update alpha (the minimum score for the maximizing player)
+                alpha = max(alpha,value)
+
+
+
+            return best_value, best_move
+        # If it it the minimizing player's turn, find the lowest value move assuming that the maximizing player
+        # will pick the maximizing moves
+        else:
+            best_value = float('inf')
+            best_move = (-1,-1)
+            for move in game.get_legal_moves():
+                (value, new_move) = self.alphabeta(game.forecast_move(move), depth-1, alpha, beta, maximizing_player=True)
+                if value < best_value:
+                    best_value = value
+                    best_move = move
+
+                # If the value of the node is less than the minimum score for the maximizing player,
+                # the tree can be current
+                if value <= alpha:
+                    return best_value, best_move
+
+                # Update beta (the maximum score for the minimizing player)
+                beta = min(beta,value)
+
+
+            return best_value, best_move
