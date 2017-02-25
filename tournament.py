@@ -33,7 +33,7 @@ from sample_players import improved_score
 from game_agent import CustomPlayer
 from game_agent import custom_score, custom_score1, custom_score2, custom_score3
 
-NUM_MATCHES = 10  # number of matches against each opponent
+NUM_MATCHES = 5  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
 
 TIMEOUT_WARNING = "One or more agents lost a match this round due to " + \
@@ -163,10 +163,10 @@ def main():
     test_agents = [Agent(CustomPlayer(score_fn=improved_score, **CUSTOM_ARGS), "ID_Improved"),
                    Agent(CustomPlayer(score_fn=custom_score, **CUSTOM_ARGS), "Student")]
 
-    test_agents = [Agent(CustomPlayer(score_fn=improved_score, **CUSTOM_ARGS), "ID_Improved"),
-                   Agent(CustomPlayer(score_fn=custom_score1, **CUSTOM_ARGS), "Student_1"),
-                   Agent(CustomPlayer(score_fn=custom_score2, **CUSTOM_ARGS), "Student_2"),
-                   Agent(CustomPlayer(score_fn=custom_score3, **CUSTOM_ARGS), "Student_3")]
+    #test_agents = [Agent(CustomPlayer(score_fn=improved_score, **CUSTOM_ARGS), "ID_Improved"),
+    #               Agent(CustomPlayer(score_fn=custom_score1, **CUSTOM_ARGS), "Student_1"),
+    #               Agent(CustomPlayer(score_fn=custom_score2, **CUSTOM_ARGS), "Student_2"),
+    #               Agent(CustomPlayer(score_fn=custom_score3, **CUSTOM_ARGS), "Student_3")]
 
     print(DESCRIPTION)
     for agentUT in test_agents:

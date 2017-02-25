@@ -1,0 +1,86 @@
+This script evaluates the performance of the custom heuristic function by
+comparing the strength of an agent using iterative deepening (ID) search with
+alpha-beta pruning against the strength rating of agents using other heuristic
+functions.  The `ID_Improved` agent provides a baseline by measuring the
+performance of a basic agent using Iterative Deepening and the "improved"
+heuristic (from lecture) on your hardware.  The `Student` agent then measures
+the performance of Iterative Deepening and the custom heuristic against the
+same opponents.
+
+
+*************************
+ Evaluating: ID_Improved
+*************************
+
+Playing Matches:
+----------
+  Match 1: ID_Improved vs   Random    	Result: 342 to 58
+  Match 2: ID_Improved vs   MM_Null   	Result: 305 to 95
+  Match 3: ID_Improved vs   MM_Open   	Result: 262 to 138
+  Match 4: ID_Improved vs MM_Improved 	Result: 263 to 137
+  Match 5: ID_Improved vs   AB_Null   	Result: 269 to 131
+  Match 6: ID_Improved vs   AB_Open   	Result: 239 to 161
+  Match 7: ID_Improved vs AB_Improved 	Result: 234 to 166
+
+
+Results:
+----------
+ID_Improved         68.36%
+
+*************************
+  Evaluating: Student_1
+*************************
+
+Playing Matches:
+----------
+  Match 1:  Student_1  vs   Random    	Result: 341 to 59
+  Match 2:  Student_1  vs   MM_Null   	Result: 323 to 77
+  Match 3:  Student_1  vs   MM_Open   	Result: 260 to 140
+  Match 4:  Student_1  vs MM_Improved 	Result: 253 to 147
+  Match 5:  Student_1  vs   AB_Null   	Result: 286 to 114
+  Match 6:  Student_1  vs   AB_Open   	Result: 262 to 138
+  Match 7:  Student_1  vs AB_Improved 	Result: 237 to 163
+
+
+Results:
+----------
+Student_1           70.07%
+
+*************************
+  Evaluating: Student_2
+*************************
+
+Playing Matches:
+----------
+  Match 1:  Student_2  vs   Random    	Result: 339 to 61
+  Match 2:  Student_2  vs   MM_Null   	Result: 307 to 93
+  Match 3:  Student_2  vs   MM_Open   	Result: 252 to 148
+  Match 4:  Student_2  vs MM_Improved 	Result: 244 to 156
+  Match 5:  Student_2  vs   AB_Null   	Result: 308 to 92
+  Match 6:  Student_2  vs   AB_Open   	Result: 232 to 168
+  Match 7:  Student_2  vs AB_Improved 	Result: 228 to 172
+
+
+Results:
+----------
+Student_2           68.21%
+
+*************************
+  Evaluating: Student_3
+*************************
+
+Playing Matches:
+----------
+  Match 1:  Student_3  vs   Random    	Result: 354 to 46
+  Match 2:  Student_3  vs   MM_Null   	Result: 319 to 81
+  Match 3:  Student_3  vs   MM_Open   	Result: 272 to 128
+  Match 4:  Student_3  vs MM_Improved 	Result: 254 to 146
+  Match 5:  Student_3  vs   AB_Null   	Result: 299 to 101
+  Match 6:  Student_3  vs   AB_Open   	Result: 267 to 133
+  Match 7:  Student_3  vs AB_Improved 	Result: 245 to 155
+
+
+Results:
+----------
+Student_3           71.79%
+MacBook-Pro:AIND-Isolation chinyentee$

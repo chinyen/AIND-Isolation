@@ -49,7 +49,8 @@ def custom_score(game, player):
 def custom_score1(game, player):
     """
     Heuristic 1: Aggressive Improved Score Heuristic
-
+    This heuristic is similar to the improved score heuristic except that the number
+    of opponent moves are weighted more heavily
 
     Parameters
     ----------
@@ -67,13 +68,18 @@ def custom_score1(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
+    # Get number of own moves and opponent moves
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
     return float(own_moves-2*opp_moves)
 
 def custom_score2(game, player):
     """
-    Heuristic 2: Euclidean Distance to Middle of Board
+    Heuristic 2: Euclidean Distance from center and opponent.
+    In this heuristic we assume that moves closer to the middle of the board is
+    better than moves further to the side of the board. In addition, we assume
+    that it is better to be further away from the opponent at the same time.
 
     Parameters
     ----------
@@ -97,16 +103,23 @@ def custom_score2(game, player):
     middle_row = (game.height)//2
     euclidean_dist = ((row-middle_row)**2+(col-middle_col)**2)**0.5
 
+    # Calculate the enclidean distance from current player location to opponent's
+    # location
     row_opp, col_opp = game.get_player_location(game.get_opponent(player))
     opp_euclidean_dist = ((row_opp-middle_row)**2+(col_opp-middle_col)**2)**0.5
-
     dist_opp = ((row_opp-row)**2+(col_opp-col)**2)**0.5
-    # Return negative enclidean distance since the further it is the less desirable the move
-    return -euclidean_dist + opp_euclidean_dist +dist_opp
+
+    # Return sum of negative enclidean distance to center (since the further it is the
+    # less desirable the move) and positive encliden distance to opponent (since the
+    # further the opponent is the better)
+    return -euclidean_dist + dist_opp
 
 def custom_score3(game, player):
     """
-    Heuristic 3: Euclidean Distance to Middle of Board
+    Heuristic 3: Combination of improved score heuristic and heuristic 2
+    This heuristic uses a weighted combination of the improved heuristic score
+    and heuristic 2. At the start of the game, heuristic 2 is weighted more heavily,
+    whereas at the end of the game, improved score heuristic is weighted more heavily
 
     Parameters
     ----------
@@ -124,21 +137,31 @@ def custom_score3(game, player):
         The heuristic value of the current game state to the specified player.
 
     """
+
+    # Find % of board still empty
     board_size = game.width*game.height
     empty_size = len(game.get_blank_spaces())
     empty_ratio = empty_size/board_size
-    
 
+    # Calculate the enclidean distance from current player location to the middle_width
+    # of board
     row, col = game.get_player_location(player)
     middle_col = (game.width)//2
     middle_row = (game.height)//2
     euclidean_dist = ((row-middle_row)**2+(col-middle_col)**2)**0.5
 
+    # Calculate the enclidean distance from current player location to opponent's
+    # location
+    row_opp, col_opp = game.get_player_location(game.get_opponent(player))
+    opp_euclidean_dist = ((row_opp-middle_row)**2+(col_opp-middle_col)**2)**0.5
+    dist_opp = ((row_opp-row)**2+(col_opp-col)**2)**0.5
+
+    # Calculate number of own moves and opponent moves
     own_moves = len(game.get_legal_moves(player))
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
 
-
-    return float(own_moves-3*opp_moves*(1-empty_ratio) - 3*euclidean_dist*empty_ratio)
+    # Return weighted score
+    return (-euclidean_dist + dist_opp)*empty_ratio + (own_moves-opp_moves)*(1-empty_ratio)
 
 
 class CustomPlayer:
